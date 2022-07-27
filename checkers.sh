@@ -21,9 +21,11 @@ fi
 # Give wp-cli enough to comfortably run
 WP_CLI="php -d memory_limit=128M -d disable_functions= $(which wp)"
 
+# Get site URL
+URL="$($WP_CLI option get siteurl --skip-plugins --skip-themes 2>/dev/null)"
+
 # Check if the given error message is on the site
-URL="$($WP_CLI option get siteurl --skip-plugins --skip-themes)"
-if [[ $(curl -A "checkers" $URL 2>&1 | grep -i "$1") = "" ]]; then
+if [[ $(curl -s -A "checkers" $URL 2>&1 | grep -i "$1") = "" ]]; then
     echo "I don't see that error message on the site."
     exit
 fi
@@ -35,15 +37,15 @@ echo -e "Here's our suspects: "$PLUGINS"\n"
 
 # Do the loop
 for PLUGIN in $PLUGINS; do
-    wpDeactivatePlugin="$($WP_CLI plugin deactivate $PLUGIN)"
+    wpDeactivatePlugin="$($WP_CLI plugin deactivate $PLUGIN 2>/dev/null)"
 
     echo -e "Let's see if it's ${PLUGIN}..."
-    if [[ $(curl -A "checkers" $URL 2>&1 | grep -i "$1") = "" ]]; then
+    if [[ $(curl -s -A "checkers" $URL 2>&1 | grep -i "$1") = "" ]]; then
         echo -e "Found it\u21 $PLUGIN is the imposter."
         GOTEM="true"
         exit; else
         echo -e "It wasn't ${PLUGIN}. Back to the drawing board.\n"
-        wpActivatePlugin="$($WP_CLI plugin activate $PLUGIN)"
+        wpActivatePlugin="$($WP_CLI plugin activate $PLUGIN 2>/dev/null)"
     fi
 done
 
