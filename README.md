@@ -7,7 +7,7 @@ There's some basic checks to make sure an error message is actuallty provided, a
 
 Unlike telcheck and makesite, it doesn't have any extra options or features. It just does what it says and should work.
 
-## minicheck
-As is tradition, minicheck is a version of the same script slimmed down without comments and excess spacing. Useful to run directly in the shell instead of having to download and execute a file. As always, review any code you run from the Internet.
+## minicheckers
+As is tradition, minicheckers is a version of the same script slimmed down without comments and excess spacing. Useful to run directly in the shell instead of having to download and execute a file. As always, review any code you run from the Internet.
 
 checkers was inspired by one of Tyler's [excellent scripts](https://github.com/Risingfeanyx/cPanel_centos_scripts#wordpress).
