@@ -4,6 +4,10 @@ checkers is a simple Bash script for WordPress that tries to find the plugin beh
 
 There's some basic checks to make sure an error message is actuallty provided, and that the script can see the error for itself before it tries to do anything. It also shows each plugin it found, and the results of trying each one for verbosity.
 
+**Can I have a version without the emojis and that stupid Among Us reference?**
+
+No.
+
 ## minicheckers
 As is tradition, minicheckers is a version of the same script slimmed down without comments and excess spaces. Useful to run directly in the shell instead of having to download and execute a file. As always, review any code you run from the Internet.
 
