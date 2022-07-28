@@ -55,7 +55,7 @@ for PLUGIN in $PLUGINS; do
         echo -e "👮‍♂️ Gotcha'"'!'" $PLUGIN_NAME is the imposter."
         GOTEM="true"
         exit; else
-        echo -e "😔 Nope. It wasn't $PLUGIN_NAME\n"
+        echo -e "😔 Nope. It wasn't $PLUGIN_NAME.\n"
         wpActivatePlugin="$($WP_CLI plugin activate $PLUGIN --skip-plugins --skip-themes 2>/dev/null)"
     fi
 done
