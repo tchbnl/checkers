@@ -1,5 +1,5 @@
 # checkers
-![checkers](https://user-images.githubusercontent.com/86271004/181372648-3dbc7b53-6e28-40ed-8926-c6370e7bd257.png)
+![checkers](https://user-images.githubusercontent.com/86271004/181507987-1b0d20bd-74fc-4ea7-aa4e-478f21d750db.png)
 
 checkers is a simple Bash script for WordPress that tries to find the plugin behind critical errors and similar. Useful if DEBUG mode doesn't provide additional info, and the site has 50-some odd plugins enabled. It takes the inputted error, gets the list of active plugins, and deactivates them one at a time until the error no longer shows (and re-activates the plugins that had no effect). It uses curl and wp-cli - that's it.
 
