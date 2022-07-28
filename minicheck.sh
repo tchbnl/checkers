@@ -3,31 +3,34 @@ checkers()
 if [[ $GOTEM ]]; then
 unset GOTEM
 fi
+TEXT_BLD="\e[1m"
+TEXT_RST="\e[0m"
 if [[ $1 = "" ]]; then
-echo "You must specify the error message."
-return
+echo "You need to specify an error message. Use: checkers \"Your error message\""
+exit
 fi
 WP_CLI="php -d memory_limit=128M -d disable_functions= $(which wp)"
 URL="$($WP_CLI option get siteurl --skip-plugins --skip-themes 2>/dev/null)"
 if [[ $(curl -s -A "checkers" $URL 2>&1 | grep -i "$1") = "" ]]; then
 echo "I don't see that error message on the site."
-return
+exit
 fi
-PLUGINS="$($WP_CLI plugin list --field=name --status=active --skio-plugins --skip-themes 2>/dev/null)"
-echo -e "Here's our suspects: "$PLUGINS"\n"
+PLUGINS="$($WP_CLI plugin list --field=name --status=active --skip-plugins --skip-themes 2>/dev/null)"
+echo -e "${TEXT_BLD}The usual suspects:${TEXT_RST}\n$($WP_CLI plugin list --field=title --status=active --skip-plugins --skip-themes 2>/dev/null | awk '{print "* "$0}')\n"
 for PLUGIN in $PLUGINS; do
-wpDeactivatePlugin="$($WP_CLI plugin deactivate $PLUGIN 2>/dev/null)"
-echo -e "Let's see if it's ${PLUGIN}..."
+wpDeactivatePlugin="$($WP_CLI plugin deactivate $PLUGIN --skip-plugins --skip-themes 2>/dev/null)"
+PLUGIN_NAME="$($WP_CLI plugin get $PLUGIN --field=title --skip-plugins --skip-themes 2>/dev/null)"
+echo -e "${TEXT_BLD}Let's check $PLUGIN_NAME${TEXT_RST}:"
 if [[ $(curl -s -A "checkers" $URL 2>&1 | grep -i "$1") = "" ]]; then
-echo -e "Found it\u21 $PLUGIN is the imposter."
+echo -e "👮‍♂️ Gotcha'"'!'" $PLUGIN_NAME is the imposter."
 GOTEM="true"
-return; else
-echo -e "It wasn't ${PLUGIN}. Back to the drawing board.\n"
-wpActivatePlugin="$($WP_CLI plugin activate $PLUGIN 2>/dev/null)"
+exit; else
+echo -e "😔 Nope. It wasn't $PLUGIN_NAME\n"
+wpActivatePlugin="$($WP_CLI plugin activate $PLUGIN --skip-plugins --skip-themes 2>/dev/null)"
 fi
 done
 if [[ $GOTEM ]]; then
 unset GOTEM; else
-echo -e "None of those were it\u21 Something else must be breaking things."
+echo -e "None of those were it. Something else must be breaking things."
 fi
 }

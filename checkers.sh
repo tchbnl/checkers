@@ -1,10 +1,11 @@
 #!/bin/bash
 # checkers: Cycle WordPress plugins to find source of errors
 # Nathan Paton <nathanpat@inmotionhosting.com>
-# v0.1 Updated on 7/27/2022
+# v0.2 Updated on 7/28/2022
 #
 # Releases
 # * v0.1: Initial release
+# * v0.2: Visual overhaul
 # * v1.0: Can self-compile into a giant robot
 
 # Just in case this wasn't unset last time
@@ -12,9 +13,13 @@ if [[ $GOTEM ]]; then
     unset GOTEM
 fi
 
+# Support for fancy text
+TEXT_BLD="\e[1m" # Bold text
+TEXT_RST="\e[0m" # Reset text
+
 # Make sure an error message was given
 if [[ $1 = "" ]]; then
-    echo "You must specify the error message."
+    echo "You need to specify an error message. Use: checkers \"Your error message\""
     exit
 fi
 
@@ -31,26 +36,32 @@ if [[ $(curl -s -A "checkers" $URL 2>&1 | grep -i "$1") = "" ]]; then
 fi
 
 # Get our active plugins
-PLUGINS="$($WP_CLI plugin list --field=name --status=active --skio-plugins --skip-themes 2>/dev/null)"
+PLUGINS="$($WP_CLI plugin list --field=name --status=active --skip-plugins --skip-themes 2>/dev/null)"
 
-echo -e "Here's our suspects: "$PLUGINS"\n"
+echo -e "${TEXT_BLD}The usual suspects:${TEXT_RST}\n$($WP_CLI plugin list --field=title --status=active --skip-plugins --skip-themes 2>/dev/null | awk '{print "* "$0}')\n"
 
 # Do the loop
 for PLUGIN in $PLUGINS; do
-    wpDeactivatePlugin="$($WP_CLI plugin deactivate $PLUGIN 2>/dev/null)"
+    # Deactivate the current plugin
+    wpDeactivatePlugin="$($WP_CLI plugin deactivate $PLUGIN --skip-plugins --skip-themes 2>/dev/null)"
 
-    echo -e "Let's see if it's ${PLUGIN}..."
+    # Get the title/friendly name for the current plugin
+    PLUGIN_NAME="$($WP_CLI plugin get $PLUGIN --field=title --skip-plugins --skip-themes 2>/dev/null)"
+
+    echo -e "${TEXT_BLD}Let's check $PLUGIN_NAME${TEXT_RST}:"
+
+    # Check if error is resolved; if not, reactivate plugin and move onto the next one
     if [[ $(curl -s -A "checkers" $URL 2>&1 | grep -i "$1") = "" ]]; then
-        echo -e "Found it\u21 $PLUGIN is the imposter."
+        echo -e "👮‍♂️ Gotcha'"'!'" $PLUGIN_NAME is the imposter."
         GOTEM="true"
         exit; else
-        echo -e "It wasn't ${PLUGIN}. Back to the drawing board.\n"
-        wpActivatePlugin="$($WP_CLI plugin activate $PLUGIN 2>/dev/null)"
+        echo -e "😔 Nope. It wasn't $PLUGIN_NAME\n"
+        wpActivatePlugin="$($WP_CLI plugin activate $PLUGIN --skip-plugins --skip-themes 2>/dev/null)"
     fi
 done
 
 # Closing thoughts and cleanup
 if [[ $GOTEM ]]; then
     unset GOTEM; else
-    echo -e "None of those were it\u21 Something else must be breaking things."
+    echo -e "None of those were it. Something else must be breaking things."
 fi
