@@ -1,36 +1,38 @@
 checkers()
 {
-if [[ $GOTEM ]]; then
-unset GOTEM
-fi
-TEXT_BLD="\e[1m"
-TEXT_RST="\e[0m"
-if [[ $1 = "" ]]; then
+TEXT_BOLD='\e[1m'
+TEXT_RESET='\e[0m'
+if [[ -n "$1" ]]; then
+ERROR_MSG="$1"; else
 echo "You need to specify an error message. Use: checkers \"Your error message\""
 return
 fi
-WP_CLI="php -d memory_limit=128M -d disable_functions= $(which wp)"
-URL="$($WP_CLI option get siteurl --skip-plugins --skip-themes 2>/dev/null)"
-if [[ $(curl -s -A "checkers" $URL 2>&1 | grep -i "$1") = "" ]]; then
+wp_cli() {
+php -d memory_limit=128M -d disable_functions= "$(which wp)" "$@" --skip-plugins --skip-themes 2>/dev/null
+}
+URL="$(wp_cli option get siteurl)"
+USER_AGENT="Mozilla/3.0 (compatible; NetPositive/2.1.1; BeOS)"
+if [[ -z "$(curl -sA "${USER_AGENT}" ${URL} | grep -i "${ERROR_MSG}")" ]]; then
 echo "I don't see that error message on the site."
 return
 fi
-PLUGINS="$($WP_CLI plugin list --field=name --status=active --skip-plugins --skip-themes 2>/dev/null)"
-echo -e "${TEXT_BLD}The usual suspects:${TEXT_RST}\n$($WP_CLI plugin list --field=title --status=active --skip-plugins --skip-themes 2>/dev/null | awk '{print "* "$0}')\n"
+PLUGINS="$(wp_cli plugin list --field=name --status=active)"
+echo -e "${TEXT_BOLD}Here's our suspects:${TEXT_RESET}
+$(wp_cli plugin list --field=title --status=active | awk '{print "* "$0}')\n"
 for PLUGIN in $PLUGINS; do
-wpDeactivatePlugin="$($WP_CLI plugin deactivate $PLUGIN --skip-plugins --skip-themes 2>/dev/null)"
-PLUGIN_NAME="$($WP_CLI plugin get $PLUGIN --field=title --skip-plugins --skip-themes 2>/dev/null)"
-echo -e "${TEXT_BLD}Let's check $PLUGIN_NAME${TEXT_RST}:"
-if [[ $(curl -s -A "checkers" $URL 2>&1 | grep -i "$1") = "" ]]; then
-echo -e "👮‍♂️ Gotcha'"'!'" $PLUGIN_NAME is the imposter."
-GOTEM="true"
+wp_cli plugin deactivate "${PLUGIN}" --quiet
+SUSPECT="$(wp_cli plugin get ${PLUGIN} --field=title)"
+echo -e "${TEXT_BOLD}Let's check ${SUSPECT}:${TEXT_RESET}"
+if [[ -z "$(curl -sA "${USER_AGENT}" ${URL} | grep -i "${ERROR_MSG}")" ]]; then
+echo "👮‍♂️ Gotcha"'!'" ${SUSPECT} is the imposter."
+FOUND='true'
 return; else
-echo -e "😔 Nope. It wasn't $PLUGIN_NAME.\n"
-wpActivatePlugin="$($WP_CLI plugin activate $PLUGIN --skip-plugins --skip-themes 2>/dev/null)"
+echo -e "😔 Nope, it wasn't ${SUSPECT}.\n"
+wp_cli plugin activate "${PLUGIN}" --quiet
 fi
 done
-if [[ $GOTEM ]]; then
-unset GOTEM; else
-echo -e "None of those were it. Something else must be breaking things."
+if [[ -v "${FOUND}" ]]; then
+unset FOUND; else
+echo "None of those were it"'!'" Something else must be breaking things."
 fi
 }
