@@ -38,7 +38,7 @@ URL="$(wp_cli option get siteurl)"
 USER_AGENT="Mozilla/3.0 (compatible; NetPositive/2.1.1; BeOS)"
 
 # Check if we can see the error message; if not, bail out
-if [[ -z "$(curl -sA "${USER_AGENT}" ${URL} | grep -i "${ERROR_MSG}")" ]]; then
+if ! curl -sA "${USER_AGENT}" "${URL}" | grep -iq "${ERROR_MSG}"; then
   echo "I don't see that error message on the site."
   exit
 fi
@@ -58,11 +58,11 @@ for PLUGIN in $PLUGINS; do
   wp_cli plugin deactivate "${PLUGIN}" --quiet
 
   # Get plugin's "nice" name for output
-  SUSPECT="$(wp_cli plugin get ${PLUGIN} --field=title)"
+  SUSPECT="$(wp_cli plugin get "${PLUGIN}" --field=title)"
   echo -e "${TEXT_BOLD}Let's check ${SUSPECT}:${TEXT_RESET}"
 
   # Check if the error message is still there
-  if [[ -z "$(curl -sA "${USER_AGENT}" ${URL} | grep -i "${ERROR_MSG}")" ]]; then
+  if ! curl -sA "${USER_AGENT}" "${URL}" | grep -iq "${ERROR_MSG}"; then
     echo "👮‍♂️ Gotcha"'!'" ${SUSPECT} is the imposter."
 
     # Set FOUND for final message check at the end
