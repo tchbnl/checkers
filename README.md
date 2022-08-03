@@ -8,7 +8,6 @@ There's some basic checks to make sure an error message is actuallty provided, a
 
 No.
 
-## minicheckers
-As is tradition, minicheckers is a version of the same script slimmed down without comments and excess spaces. Useful to run directly in the shell instead of having to download and execute a file. As always, review any code you run from the Internet.
+checkers.min.sh is a compact version of the script that can be run directly in the shell without downloading.
 
 checkers was inspired by one of Tyler's [excellent WordPress scripts](https://github.com/Risingfeanyx/cPanel_centos_scripts#wordpress).
