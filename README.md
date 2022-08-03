@@ -4,10 +4,10 @@ checkers is a simple Bash script for WordPress that tries to find the plugin beh
 
 There's some basic checks to make sure an error message is actuallty provided, and that the script can see the error for itself before it tries to do anything. It also shows each plugin it found, and the results of trying each one for verbosity.
 
+checkers.min.sh is a compact version of the script that can be run directly in the shell without downloading.
+
 **Can I have a version without the emojis and that stupid Among Us reference?**
 
 No.
-
-checkers.min.sh is a compact version of the script that can be run directly in the shell without downloading.
 
 checkers was inspired by one of Tyler's [excellent WordPress scripts](https://github.com/Risingfeanyx/cPanel_centos_scripts#wordpress).
