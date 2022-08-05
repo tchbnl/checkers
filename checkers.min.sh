@@ -31,7 +31,7 @@ echo -e "😔 Nope, it wasn't ${SUSPECT}.\n"
 wp_cli plugin activate "${PLUGIN}" --quiet
 fi
 done
-if [[ -v "${FOUND}" ]]; then
+if [[ -v FOUND ]]; then
 unset FOUND; else
 echo "None of those were it"'!'" Something else must be breaking things."
 fi

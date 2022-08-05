@@ -79,7 +79,7 @@ done
 
 # If the cause was FOUND, clean up and wrap. If not, let the user know none of
 # the active plugins are behind the error.
-if [[ -v "${FOUND}" ]]; then
+if [[ -v FOUND ]]; then
   unset FOUND; else
   echo "None of those were it"'!'" Something else must be breaking things."
 fi
